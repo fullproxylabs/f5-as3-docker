@@ -71,8 +71,8 @@
                 },
                 "{{ hostvars[app]['app_name'] }}_client_cert": {
                     "class": "Certificate",
-                    "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}.crt"}
-                }
+                    "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}"}
+                }crt
                 {% if hostvars[app]['SSL_OFFLOAD'] == "False" %}
                 ,
                 "{{ hostvars[app]['app_name'] }}_serverssl_profile": {
