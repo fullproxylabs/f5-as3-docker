@@ -69,7 +69,7 @@
                             }
                         ]
                 },
-                "client_cert": {
+                "{{ hostvars[app]['app_name'] }}_client_cert": {
                     "class": "Certificate",
                     "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}"}
                 },
@@ -78,7 +78,7 @@
                     "class": "TLS_Client",
                     "clientCertificate":"server_cert"
                 },
-                "server_cert": {
+                "{{ hostvars[app]['app_name'] }}_server_cert": {
                     "class": "Certificate",
                     "certificate": {"bigip": "{{hostvars[app]['int_cert']}}"}
                 }
