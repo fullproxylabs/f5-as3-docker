@@ -64,7 +64,7 @@
                     "class": "TLS_Server",
                         "certificates": [
                             {
-                                "certificate": "client_cert",
+                                "certificate": "{{ hostvars[app]['app_name'] }}_client_cert",
                                     "matchToSNI": ""
                             }
                         ]
@@ -77,7 +77,7 @@
                 ,
                 "{{ hostvars[app]['app_name'] }}_serverssl_profile": {
                     "class": "TLS_Client",
-                    "clientCertificate":"server_cert"
+                    "clientCertificate":"{{ hostvars[app]['app_name'] }}_server_cert"
                 },
                 "{{ hostvars[app]['app_name'] }}_server_cert": {
                     "class": "Certificate",
