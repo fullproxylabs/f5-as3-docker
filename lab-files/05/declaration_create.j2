@@ -72,8 +72,9 @@
                 "client_cert": {
                     "class": "Certificate",
                     "certificate": {"bigip": "/Common/default.crt"}
-                },
+                }
                 {% if hostvars[app]['SSL_OFFLOAD'] == "False" %}
+                ,
                 "{{ hostvars[app]['app_name'] }}_serverssl_profile": {
                     "class": "TLS_Client",
                     "clientCertificate":"server_cert"
