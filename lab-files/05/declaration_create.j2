@@ -11,12 +11,12 @@
         "remark": "Simple HTTP Service with Round-Robin Load Balancing",
         "{{tenant_name}}": {
             "class": "Tenant",
+            {% set comma1 = joiner(",") %}
+            {% for app in groups['apps'] %}
+            {{comma1()}}
             "{{hostvars[app]['app_name']}}": {
                 "class": "Application",
                 "template": "generic",
-                {% set comma1 = joiner(",") %}
-                {% for app in groups['apps'] %}
-                {{comma1()}}
                 "{{hostvars[app]['app_name']}}_vs": {
                     "class": "{{ hostvars[app]['class_template'] }}",
                     "label": "my application {{hostvars[app]['app_name']}}",
