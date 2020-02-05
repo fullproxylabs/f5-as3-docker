@@ -16,7 +16,7 @@
                 "template": "generic",
                 {% set comma1 = joiner(",") %}
                 {% for app in groups['apps'] %}
-                {{comma()}}
+                {{comma1()}}
                 "{{app_name}}_vs": {
                     "class": "{{ class_template }}",
                     "label": "my application {{app_name}}",
