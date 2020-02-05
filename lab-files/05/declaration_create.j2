@@ -23,7 +23,7 @@
                     "virtualAddresses": [
                         "{{hostvars[app]['vs_ip']}}"
                     ],
-                    {% if class_template == "Service_HTTPS" %}
+                    {% if hostvars[app]['class_template'] == "Service_HTTPS" %}
                     "virtualPort": {{hostvars[app]['vs_port'] | default(443)}},
                     {% else %}
                     "virtualPort": {{hostvars[app]['vs_port'] | default(80)}},
