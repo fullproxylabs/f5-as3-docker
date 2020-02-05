@@ -58,7 +58,7 @@
                         {% endfor %}
                     ]
                 },
-                {% if class_template == "Service_HTTPS" %}
+                {% if [app]['class_template'] == "Service_HTTPS" %}
                 "{{ [app]['app_name'] }}_clientssl_profile": {
                     "class": "TLS_Server",
                         "certificates": [
@@ -72,7 +72,7 @@
                     "class": "Certificate",
                     "certificate": {"bigip": "/Common/default.crt"}
                 },
-                {% if SSL_OFFLOAD == "False" %}
+                {% if [app]['SSL_OFFLOAD'] == "False" %}
                 "{{ [app]['app_name'] }}_serverssl_profile": {
                     "class": "TLS_Client",
                     "clientCertificate":"server_cert"
