@@ -15,34 +15,34 @@
                 "class": "Application",
                 "template": "generic",
                 {% set comma1 = joiner(",") %}
-                {% for app name in groups['apps'] %}
+                {% for app in groups['apps'] %}
                 {{comma1()}}
-                "{{app_name}}_vs": {
-                    "class": "{{ class_template }}",
-                    "label": "my application {{app_name}}",
+                "{{[app]['app_name']}}_vs": {
+                    "class": "{{ [app]['class_template'] }}",
+                    "label": "my application {{[app]['app_name']}}",
                     "virtualAddresses": [
-                        "{{vs_ip}}"
+                        "{{[app]['vs_ip']}}"
                     ],
                     {% if class_template == "Service_HTTPS" %}
-                    "virtualPort": {{vs_port | default(443)}},
+                    "virtualPort": {{[app]['vs_port'] | default(443)}},
                     {% else %}
-                    "virtualPort": {{vs_port | default(80)}},
+                    "virtualPort": {{[app]['vs_port'] | default(80)}},
                     {% endif %}
-                    {% if class_template == "Service_HTTPS" %}
-                    "serverTLS": "{{ app_name}}_clientssl_profile",
-                    {% if SSL_OFFLOAD == "False" %}
-                    "clientTLS": "{{ app_name }}_serverssl_profile",
+                    {% if [app]['class_template'] == "Service_HTTPS" %}
+                    "serverTLS": "{{[app]['app_name']}}_clientssl_profile",
+                    {% if [app]['SSL_OFFLOAD'] == "False" %}
+                    "clientTLS": "{{[app]['app_name']}}_serverssl_profile",
                     {% endif %}
                     {% endif %}
-                    {% if class_template == "Service_HTTPS" %}
-                    {% if vs_port == 80 %}
+                    {% if [app]['class_template'] == "Service_HTTPS" %}
+                    {% if [app]['vs_port'] == 80 %}
                     "redirect80": false,
                     {% endif %}
                     {% endif %}
                     "persistenceMethods": [],
-                    "pool": "{{app_name}}_pool"
+                    "pool": "{{[app]['app_name']}}_pool"
                 },
-                "{{app_name}}_pool": {
+                "{{[app]['app_name']}}_pool": {
                     "class": "Pool",
                     "monitors": [
                         "http"
@@ -59,7 +59,7 @@
                     ]
                 },
                 {% if class_template == "Service_HTTPS" %}
-                "{{ app_name }}_clientssl_profile": {
+                "{{ [app]['app_name'] }}_clientssl_profile": {
                     "class": "TLS_Server",
                         "certificates": [
                             {
@@ -73,7 +73,7 @@
                     "certificate": {"bigip": "/Common/default.crt"}
                 },
                 {% if SSL_OFFLOAD == "False" %}
-                "{{ app_name }}_serverssl_profile": {
+                "{{ [app]['app_name'] }}_serverssl_profile": {
                     "class": "TLS_Client",
                     "clientCertificate":"server_cert"
                 },
