@@ -11,7 +11,7 @@
         "remark": "Simple HTTP Service with Round-Robin Load Balancing",
         "{{tenant_name}}": {
             "class": "Tenant",
-            "{{service_name}}": {
+            "{{hostvars[app]['app_name']}}": {
                 "class": "Application",
                 "template": "generic",
                 {% set comma1 = joiner(",") %}
