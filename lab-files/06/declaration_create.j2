@@ -30,7 +30,7 @@
                     {% endif %}
                     {% if hostvars[app]['class_template'] == "Service_HTTPS" %}
                     "serverTLS": "{{hostvars[app]['app_name']}}_clientssl_profile",
-                    {% if hostvars[app]['SSL_OFFLOAD'] == False %}
+                    {% if hostvars[app]['SSL_OFFLOAD'] == false %}
                     "clientTLS": "{{hostvars[app]['app_name']}}_serverssl_profile",
                     {% endif %}
                     {% endif %}
@@ -74,7 +74,7 @@
                     "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}"},
                     "privateKey": {"bigip": "{{hostvars[app]['int_cert']}}"}
                 }
-                {% if hostvars[app]['SSL_OFFLOAD'] == False %}
+                {% if hostvars[app]['SSL_OFFLOAD'] == false %}
                 ,
                 "{{ hostvars[app]['app_name'] }}_serverssl_profile": {
                     "class": "TLS_Client",
