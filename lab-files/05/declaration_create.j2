@@ -71,7 +71,7 @@
                 },
                 "{{ hostvars[app]['app_name'] }}_client_cert": {
                     "class": "Certificate",
-                    "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}.crt"}
+                    "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}.crt"},
                     "privateKey": {"bigip": "{{hostvars[app]['ext_cert']}}.key"}
                 }
                 {% if hostvars[app]['SSL_OFFLOAD'] == "False" %}
@@ -82,7 +82,7 @@
                 },
                 "{{ hostvars[app]['app_name'] }}_server_cert": {
                     "class": "Certificate",
-                    "certificate": "{"bigip": {{hostvars[app]['int_cert']}}.crt"}
+                    "certificate": "{"bigip": {{hostvars[app]['int_cert']}}.crt"},
                     "privateKey": "{"bigip": {{hostvars[app]['int_cert']}}.key"}
                 }
                 {% endif %}
