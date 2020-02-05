@@ -44,7 +44,7 @@
                         {% for member in groups['webserver']%}
                         {{comma()}}
                         {
-                            "serverAddresses":['{{hostvars[member]['node_ip']}}'],
+                            "serverAddresses":["{{hostvars[member]['node_ip']}}"],
                             "servicePort":{{hostvars[member]['mem_port']}}
                         }
                         {% endfor %}
