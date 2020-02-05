@@ -57,8 +57,9 @@
                         }
                         {% endfor %}
                     ]
-                },
+                }
                 {% if hostvars[app]['class_template'] == "Service_HTTPS" %}
+            	,
                 "{{ hostvars[app]['app_name'] }}_clientssl_profile": {
                     "class": "TLS_Server",
                         "certificates": [
