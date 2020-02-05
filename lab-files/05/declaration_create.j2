@@ -71,17 +71,16 @@
                 },
                 "client_cert": {
                     "class": "Certificate",
-                    "certificate": {"bigip": "/Common/default.crt"}
-                }
+                    "certificate": {"bigip": "{{hostvars[app]['ext_cert']}}"}
+                },
                 {% if hostvars[app]['SSL_OFFLOAD'] == "False" %}
-                ,
                 "{{ hostvars[app]['app_name'] }}_serverssl_profile": {
                     "class": "TLS_Client",
                     "clientCertificate":"server_cert"
                 },
                 "server_cert": {
                     "class": "Certificate",
-                    "certificate": {"bigip": "/Common/default.crt"}
+                    "certificate": {"bigip": "{{hostvars[app]['int_cert']}}"}
                 }
                 {% endif %}
                 {% endif %}
