@@ -49,7 +49,7 @@
                     ],
                     "members": [
                         {% set comma2 = joiner(",") %}
-                        {% for member in groups[app"_pool"]%}
+                        {% for member in groups[app+"_pool"]%}
                         {{comma2()}}
                         {
                             "serverAddresses":["{{hostvars[member]['node_ip']}}"],
