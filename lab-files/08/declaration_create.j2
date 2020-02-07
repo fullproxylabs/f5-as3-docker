@@ -53,7 +53,8 @@
                     {% endif %}                    
                     {% if hostvars[app]['class_template'] == "Service_HTTP" %}
                     "http"
-                    {% endif %}       
+                    {% endif %}
+                    ,"none"
                     ],
                     "members": [
                         {% set comma2 = joiner(",") %}
