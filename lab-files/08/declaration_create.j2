@@ -45,7 +45,15 @@
                 "{{hostvars[app]['app_name']}}_pool": {
                     "class": "Pool",
                     "monitors": [
-                        "http"
+                    {% if hostvars[app]['class_template'] == "Service_HTTPS" and hostvars[app]['SSL_OFFLOAD'] == "false" %}
+                    "https"
+                    {% endif %}
+                    {% if hostvars[app]['class_template'] == "Service_HTTPS" and hostvars[app]['SSL_OFFLOAD'] == "true" %}
+                    "http"
+                    {% endif %}                    
+                    {% if hostvars[app]['class_template'] == "Service_HTTP" %}
+                    "http"
+                    {% endif %}       
                     ],
                     "members": [
                         {% set comma2 = joiner(",") %}
