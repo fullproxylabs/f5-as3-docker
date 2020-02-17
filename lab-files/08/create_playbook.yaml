@@ -1,0 +1,162 @@
+
+---
+- name: Docker - Create Containers
+  hosts: app*mem*
+  gather_facts: no
+  vars:
+
+  tasks:
+    - name: Docker  Create containers
+      docker_container:
+        name: "{{ container_name }}"
+        image: "{{ container_image }}"
+        state: started
+        published_ports: "{{ mem_port }}:{{container_port}}"
+        pull: yes
+
+- name: F5 - Deploy Application
+  hosts: localhost
+  connection: local
+  gather_facts: no
+
+
+  vars:
+    lab_iter: "08"
+    creds_dir: "./"
+    template_dir: "./"
+    db_dir: "./90-db/"
+    dec_dir: "./91-dec/"
+    tokendb_file: "token.db"
+    dec_login_file: "login.j2"
+    dec_create_file: "create.j2"
+    dec_gen_file: "generated.json"
+    creds_file: "7-creds.yaml"
+    git_url: "https://raw.githubusercontent.com/fullproxylabs/f5-as3-docker/master/lab-files/{{lab_iter}}/"
+    git_dec_login: "declaration_login.j2"
+    git_dec_create: "declaration_create.j2"
+    uri_method: POST
+
+  vars_files:
+  - "{{creds_dir}}{{creds_file}}"
+
+  tasks:
+   - name: create db dir
+     file:
+      path: "{{db_dir}}"
+      state: directory
+
+   - name: create declaration dir
+     file:
+      path: "{{dec_dir}}"
+      state: directory
+
+   - name: GRAB GITHUB CONTENT FOR LOGIN
+     uri:
+      url: "{{git_url}}{{git_dec_login}}"
+      method: GET
+      status_code: 200
+      dest: "{{dec_dir}}{{dec_login_file}}"
+   - name: GRAB GITHUB CONTENT FOR APP
+     uri:
+      url: "{{git_url}}{{git_dec_create}}"
+      method: GET
+      status_code: 200
+      dest: "{{dec_dir}}{{dec_create_file}}"
+
+   - name: AUTHENTICATION
+     block:
+      - name: CHECK TOKEN DIR
+        stat:
+         path: "{{ db_dir }}"
+        register: db_var
+      - debug:
+         var: db_var
+      - name: CREATE DB DIR
+        file:
+         path: "{{ db_dir }}"
+         state: directory
+        when: (db_var.stat.exists == false) or
+              (db_var.stat.writeable == false) or
+              (db_var.stat.readable == false)
+      - name: CHECK TOKEN.DB
+        stat:
+         path: "{{ db_dir }}{{ tokendb_file }}"
+        register: tokendb_var
+      - debug:
+         var: tokendb_var
+      - name: DELETE TOKEN.DB
+        file:
+         path: "{{ db_dir }}{{ tokendb_file }}"
+         state: absent
+        when: (tokendb_var.stat.exists == true) and
+              ((tokendb_var.stat.writeable == false) or
+              (tokendb_var.stat.readable == false))
+      - name: CREATE TOKEN.DB
+        file:
+         path: "{{ db_dir }}{{ tokendb_file }}"
+         state: touch
+        when: tokendb_var.stat.exists == false
+      - name: READ TOKEN FROM DB
+        set_fact:
+         auth_token: "{{ lookup('file', '{{ db_dir }}{{ tokendb_file }}') }}"
+      - name: CHECK TOKEN IS VALID
+        uri:
+         url: "https://{{ ltm_fqdn }}:443/mgmt/shared/authz/tokens/{{ auth_token }}"
+         method: GET
+         headers:
+          X-F5-Auth-Token: "{{ auth_token }}"
+         body_format: json
+         validate_certs: no
+         timeout: 300
+         return_content: yes
+        ignore_errors: yes
+        register: token_validity
+        when: auth_token != ""
+      - debug:
+         var: token_validity
+      - name: GENERATE TOKEN
+        uri:
+         url: "https://{{ ltm_fqdn }}:443/mgmt/shared/authn/login"
+         method: POST
+         status_code: 200
+         body: "{{ lookup('template', '{{dec_dir}}{{dec_login_file}}') }}"
+         body_format: json
+         validate_certs: no
+         timeout: 300
+         return_content: yes
+        register: login_var
+        when: (token_validity.status is undefined) or
+              (token_validity.status == 401)
+      - debug:
+         var: login_var
+        when: login_var.status is defined
+      - name: ADD TOKEN TO TOKEN.DB
+        copy: content="{{ login_var.json.token.token }}" dest="{{ db_dir }}{{ tokendb_file }}"
+        when: login_var.status is defined
+      - name: ADD TOKEN TO TOKEN.DB
+        copy: content="{{ token_validity.json.token }}" dest="{{ db_dir }}{{ tokendb_file }}"
+        when: (login_var.status is undefined) and
+              (token_validity.json.token is defined)
+      - name: READ TOKEN FROM DB
+        set_fact:
+         auth_token: "{{ lookup('file', '{{ db_dir }}{{ tokendb_file }}') }}"
+
+   - name: debug host vars
+     debug:
+       var: inventory_hostname
+
+   - name: Log generated dec.json from template.j2
+     copy: content="{{ lookup('template','{{dec_dir}}{{dec_create_file}}') }}" dest="{{dec_dir}}{{dec_gen_file}}"
+
+   - name: F5 - BUILD APPLICATION
+     uri:
+      url: https://{{ltm_fqdn}}/mgmt/shared/appsvcs/declare
+      headers:
+       X-F5-Auth-Token: "{{ auth_token }}"
+      method: "{{ uri_method }}"
+      body: "{{ lookup('template','{{dec_dir}}{{dec_create_file}}') }}"
+      force_basic_auth: yes
+      validate_certs: no
+      status_code: 200, 202
+      body_format: json
+      timeout: 300
